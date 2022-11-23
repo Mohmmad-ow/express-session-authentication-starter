@@ -1,18 +1,36 @@
 const router = require('express').Router();
 const passport = require('passport');
-const passwordUtils = require('../lib/passwordUtils');
-const connection = require('../config/database');
-const User = connection.models.User;
+const {validPassword, genPassword} = require('../lib/passwordUtils');
+const {connection, User} = require('../config/database');
 
 /**
  * -------------- POST ROUTES ----------------
  */
 
  // TODO
- router.post('/login', (req, res, next) => {});
+ router.post('/login', passport.authenticate('local', { failureRedirect: '/login-failure', successRedirect: '/login-success' }));
 
  // TODO
- router.post('/register', (req, res, next) => {});
+ router.post('/register', (req, res, next) => {
+    const saltHash = genPassword(req.body.password);
+    
+    const salt = saltHash.salt;
+    const hash = saltHash.hash;
+
+    const newUser = new User({
+        username: req.body.username,
+        hash: hash,
+        salt: salt,
+        admin: true
+    });
+
+    newUser.save()
+        .then((user) => {
+            console.log(user);
+        });
+
+    res.redirect('/login');
+ });
 
 
  /**
