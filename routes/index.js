@@ -83,8 +83,10 @@ router.get('/protected-route', (req, res, next) => {
 
 // Visiting this route logs the user out
 router.get('/logout', (req, res, next) => {
-    req.logout();
-    res.redirect('/protected-route');
+    req.logout(err => {
+        if (err) {return next(err)}
+        res.redirect('/protected-route');
+    });
 });
 
 router.get('/login-success', (req, res, next) => {
